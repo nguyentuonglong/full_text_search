@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Full Text Search</string>
+    <string name="search_contact">Search contact</string>
 </resources>
