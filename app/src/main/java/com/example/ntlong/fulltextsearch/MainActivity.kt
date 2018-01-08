@@ -1,14 +1,19 @@
 package com.example.ntlong.fulltextsearch
 
+import android.Manifest
 import android.app.Activity
 import android.content.Loader
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.widget.Toast
 import com.example.ntlong.fulltextsearch.adapter.CursorContactSearchAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -22,6 +27,7 @@ class MainActivity : Activity(), android.app.LoaderManager.LoaderCallbacks<Curso
 
     private val mBaseUri = ContactsContract.Data.CONTENT_URI
     private lateinit var mCursorContactSearchAdapter: CursorContactSearchAdapter
+    private val MY_PERMISSIONS_REQUEST_READ_CONTACTS = 100
 
     override fun onCreateLoader(id: Int, args: Bundle): android.content.Loader<Cursor> {
         val selection = ContactsContract.Data.HAS_PHONE_NUMBER + "!=0 AND " +
@@ -110,7 +116,31 @@ class MainActivity : Activity(), android.app.LoaderManager.LoaderCallbacks<Curso
 
     override fun onResume() {
         super.onResume()
-        loaderManager.initLoader<Cursor>(0, Bundle(), this)
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+            loaderManager.initLoader<Cursor>(0, Bundle(), this)
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.READ_CONTACTS),
+                    MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+        }
+
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            MY_PERMISSIONS_REQUEST_READ_CONTACTS -> {
+
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    loaderManager.initLoader<Cursor>(0, Bundle(), this)
+
+                } else {
+                    Toast.makeText(this, "You should allow permission to run this demo", Toast.LENGTH_LONG).show()
+                }
+
+            }
+        }
     }
 
     companion object {
