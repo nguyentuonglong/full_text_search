@@ -6,6 +6,7 @@ import android.content.Loader
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.os.Bundle
+import android.os.Handler
 import android.provider.ContactsContract
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -124,10 +125,6 @@ class MainActivity : Activity(), android.app.LoaderManager.LoaderCallbacks<Curso
         mCursorContactSearchAdapter = CursorContactSearchAdapter(null)
         contact_list.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         contact_list.adapter = mCursorContactSearchAdapter
-    }
-
-    override fun onResume() {
-        super.onResume()
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             loaderManager.initLoader<Cursor>(0, Bundle(), this)
@@ -136,7 +133,6 @@ class MainActivity : Activity(), android.app.LoaderManager.LoaderCallbacks<Curso
                     arrayOf(Manifest.permission.READ_CONTACTS),
                     MY_PERMISSIONS_REQUEST_READ_CONTACTS);
         }
-
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
@@ -148,7 +144,18 @@ class MainActivity : Activity(), android.app.LoaderManager.LoaderCallbacks<Curso
                     loaderManager.initLoader<Cursor>(0, Bundle(), this)
 
                 } else {
-                    Toast.makeText(this, "You should allow permission to run this demo", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "You should allow permission to run this demo", Toast.LENGTH_SHORT).show()
+
+                    val handler = Handler()
+
+                    val runnable = Runnable {
+
+                        ActivityCompat.requestPermissions(this,
+                                arrayOf(Manifest.permission.READ_CONTACTS),
+                                MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+                    }
+
+                    handler.postDelayed(runnable, 1000)
                 }
 
             }
